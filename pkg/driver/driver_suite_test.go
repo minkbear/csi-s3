@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/ctrox/csi-s3/pkg/driver"
-	"github.com/ctrox/csi-s3/pkg/mounter"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -94,35 +93,35 @@ var _ = Describe("S3Driver", func() {
 		})
 	})
 
-	Context("s3backer", func() {
-		socket := "/tmp/csi-s3backer.sock"
-		csiEndpoint := "unix://" + socket
-
-		if err := os.Remove(socket); err != nil && !os.IsNotExist(err) {
-			Expect(err).NotTo(HaveOccurred())
-		}
-		// Clear loop device so we cover the creation of it
-		os.Remove(mounter.S3backerLoopDevice)
-		driver, err := driver.New("test-node", csiEndpoint)
-		if err != nil {
-			log.Fatal(err)
-		}
-		go driver.Run()
-
-		Describe("CSI sanity", func() {
-			sanityCfg := &sanity.Config{
-				TargetPath:  os.TempDir() + "/s3backer-target",
-				StagingPath: os.TempDir() + "/s3backer-staging",
-				Address:     csiEndpoint,
-				SecretsFile: "../../test/secret.yaml",
-				TestVolumeParameters: map[string]string{
-					"mounter": "s3backer",
-					"bucket":  "testbucket2",
-				},
-			}
-			sanity.GinkgoTest(sanityCfg)
-		})
-	})
+	//Context("s3backer", func() {
+	//	socket := "/tmp/csi-s3backer.sock"
+	//	csiEndpoint := "unix://" + socket
+	//
+	//	if err := os.Remove(socket); err != nil && !os.IsNotExist(err) {
+	//		Expect(err).NotTo(HaveOccurred())
+	//	}
+	//	// Clear loop device so we cover the creation of it
+	//	os.Remove(mounter.S3backerLoopDevice)
+	//	driver, err := driver.New("test-node", csiEndpoint)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//	go driver.Run()
+	//
+	//	Describe("CSI sanity", func() {
+	//		sanityCfg := &sanity.Config{
+	//			TargetPath:  os.TempDir() + "/s3backer-target",
+	//			StagingPath: os.TempDir() + "/s3backer-staging",
+	//			Address:     csiEndpoint,
+	//			SecretsFile: "../../test/secret.yaml",
+	//			TestVolumeParameters: map[string]string{
+	//				"mounter": "s3backer",
+	//				"bucket":  "testbucket2",
+	//			},
+	//		}
+	//		sanity.GinkgoTest(sanityCfg)
+	//	})
+	//})
 
 	Context("rclone", func() {
 		socket := "/tmp/csi-rclone.sock"

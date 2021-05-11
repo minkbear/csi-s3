@@ -50,13 +50,32 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 	volumeID := sanitizeVolumeID(req.GetName())
 	bucketName := volumeID
 	prefix := ""
+	fsPath := defaultFsPath
+
+	// check if prefix is specified
+	if pf, ok := params[mounter.Prefix]; ok {
+		if pf != "" {
+			prefix = pf
+		}
+	}
+
+	// check if fsPath is specified
+	if fs, ok := params[mounter.FSPath]; ok {
+		if fs != "" {
+			fsPath = fs
+		}
+	}
 
 	// check if bucket name is overridden
 	if nameOverride, ok := params[mounter.BucketKey]; ok {
 		bucketName = nameOverride
-		prefix = volumeID
+		if prefix == "" {
+			prefix = volumeID
+		}
 		volumeID = path.Join(bucketName, prefix)
 	}
+
+	// check if a rootDir is specified
 
 	if err := cs.Driver.ValidateControllerServiceRequest(csi.ControllerServiceCapability_RPC_CREATE_DELETE_VOLUME); err != nil {
 		glog.V(3).Infof("invalid create volume req: %v", req)
@@ -78,7 +97,7 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		Prefix:        prefix,
 		Mounter:       mounterType,
 		CapacityBytes: capacityBytes,
-		FSPath:        defaultFsPath,
+		FSPath:        fsPath,
 	}
 
 	client, err := s3.NewClientFromSecret(req.GetSecrets())
@@ -108,8 +127,8 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		}
 	}
 
-	if err = client.CreatePrefix(bucketName, path.Join(prefix, defaultFsPath)); err != nil {
-		return nil, fmt.Errorf("failed to create prefix %s: %v", path.Join(prefix, defaultFsPath), err)
+	if err = client.CreatePrefix(bucketName, path.Join(prefix, fsPath)); err != nil {
+		return nil, fmt.Errorf("failed to create prefix %s: %v", path.Join(prefix, fsPath), err)
 	}
 
 	if err := client.SetFSMeta(meta); err != nil {

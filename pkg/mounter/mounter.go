@@ -31,6 +31,8 @@ const (
 	rcloneMounterType   = "rclone"
 	TypeKey             = "mounter"
 	BucketKey           = "bucket"
+	Prefix              = "prefix"
+	FSPath              = "fsPath"
 )
 
 // New returns a new mounter depending on the mounterType parameter
@@ -47,15 +49,14 @@ func New(meta *s3.FSMeta, cfg *s3.Config) (Mounter, error) {
 	case goofysMounterType:
 		return newGoofysMounter(meta, cfg)
 
-	case s3backerMounterType:
-		return newS3backerMounter(meta, cfg)
+	//case s3backerMounterType:
+	//	return newS3backerMounter(meta, cfg)
 
 	case rcloneMounterType:
 		return newRcloneMounter(meta, cfg)
 
 	default:
-		// default to s3backer
-		return newS3backerMounter(meta, cfg)
+		return newRcloneMounter(meta, cfg)
 	}
 }
 
