@@ -10,6 +10,9 @@ parameters:
   mounter: rclone
   # to use an existing bucket, specify it here:
   # bucket: some-existing-bucket
+  # In S3 you get [bucket]/mytest/pvc_test/
+  # prefix: mytest
+  # fsPath: pvc_test
   csi.storage.k8s.io/provisioner-secret-name: csi-s3-secret
   csi.storage.k8s.io/provisioner-secret-namespace: kube-system
   csi.storage.k8s.io/controller-publish-secret-name: csi-s3-secret

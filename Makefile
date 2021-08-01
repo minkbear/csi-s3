@@ -14,7 +14,7 @@
 .PHONY: test build container push clean
 
 PROJECT_DIR=/app
-REGISTRY_NAME=rubiklabs
+REGISTRY_NAME=minkbear
 IMAGE_NAME=csi-s3
 VERSION ?= v1.2.1-d8
 IMAGE_TAG=$(REGISTRY_NAME)/$(IMAGE_NAME):$(VERSION)
